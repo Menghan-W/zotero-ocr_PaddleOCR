@@ -191,13 +191,35 @@ The default Zotero OCR settings are intended to facilitate troubleshooting, and 
 
 Regular users do not need to read this section.
 
+### Building
+
 Developers can build a new extension file by running `./build.sh [VERSION]`.
 It will ask for a version if no version was given on the command line.
-Then in Zotero install the newly created `.xpi`-file. as described in the Installation section.
+Then in Zotero install the newly created `.xpi`-file as described in the Installation section.
 
 If any error occurs then you will see more details in the `Help`, `Report Error...` dialog. For some debugging messages you can activate in Zotero the debugging in the `Help`, `Debug Output Logging`.
 
-For a new release, run the script `release.sh`.
+### Creating Releases
+
+This project uses **automated GitHub Actions workflows** to create releases:
+
+#### Automatic Release (Recommended)
+Push a version tag to automatically create a release:
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+#### Manual Release
+Trigger a release manually from the GitHub Actions tab:
+1. Go to Actions → Manual Release
+2. Enter version number (e.g., `1.0.1`)
+3. Click "Run workflow"
+
+For detailed instructions, see [RELEASE.md](RELEASE.md).
+
+### Manual Release (Legacy)
+For manual releases without GitHub Actions, run the script `release.sh`.
 It runs the `build.sh` script, commits the code changes for the new release and adds a tag.
 Push the updated local master branch and the tag to GitHub.
 Then publish a [new release on GitHub](https://github.com/UB-Mannheim/zotero-ocr/releases/new) and attach the `.xpi` file there.

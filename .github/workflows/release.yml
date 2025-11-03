@@ -1,0 +1,116 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v1.0.0, v1.0.1, etc.
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for changelog generation
+      
+      - name: Get version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+      - name: Build XPI package
+        run: |
+          ./build.sh ${{ steps.get_version.outputs.version }}
+          
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Extract changelog for this version
+          if [ -f CHANGES.md ]; then
+            # Try to extract version-specific changes
+            echo "## What's Changed" > release_notes.md
+            echo "" >> release_notes.md
+            
+            # Add automatic changelog from git commits
+            if [ $(git tag | wc -l) -gt 1 ]; then
+              PREV_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+              if [ -n "$PREV_TAG" ]; then
+                echo "### Commits since $PREV_TAG:" >> release_notes.md
+                git log $PREV_TAG..${{ steps.get_version.outputs.tag }} --pretty=format:"- %s (%h)" >> release_notes.md
+              else
+                echo "### All commits:" >> release_notes.md
+                git log ${{ steps.get_version.outputs.tag }} --pretty=format:"- %s (%h)" >> release_notes.md
+              fi
+            else
+              echo "### Initial release commits:" >> release_notes.md
+              git log ${{ steps.get_version.outputs.tag }} --pretty=format:"- %s (%h)" >> release_notes.md
+            fi
+            
+            echo "" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "## Installation" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "### Option 1: Using Pixi (Recommended)" >> release_notes.md
+            echo '```bash' >> release_notes.md
+            echo "pixi install" >> release_notes.md
+            echo '```' >> release_notes.md
+            echo "" >> release_notes.md
+            echo "### Option 2: Manual Installation" >> release_notes.md
+            echo '```bash' >> release_notes.md
+            echo "pip install paddleocr img2pdf" >> release_notes.md
+            echo '```' >> release_notes.md
+            echo "" >> release_notes.md
+            echo "See [INSTALL.md](https://github.com/Menghan-W/zotero-ocr_PaddleOCR/blob/main/INSTALL.md) for detailed instructions." >> release_notes.md
+          else
+            echo "Release ${{ steps.get_version.outputs.version }}" > release_notes.md
+          fi
+          
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ steps.get_version.outputs.version }}
+          body_path: release_notes.md
+          files: |
+            build/zotero-ocr-${{ steps.get_version.outputs.version }}.xpi
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Update updates.json
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          XPI_FILE="build/zotero-ocr-${VERSION}.xpi"
+          
+          # Calculate SHA256 hash
+          HASH=$(shasum -a 256 "$XPI_FILE" | cut -d' ' -f1)
+          
+          # Update updates.json
+          perl -pi -e "s/\"version\": \"[^\"]*\",/\"version\": \"${VERSION}\",/" updates.json
+          perl -pi -e "s|\"update_link\": \"[^\"]*\"|\"update_link\": \"https://github.com/Menghan-W/zotero-ocr_PaddleOCR/releases/download/v${VERSION}/zotero-ocr-${VERSION}.xpi\"|" updates.json
+          
+          # Check if we have the update_hash field, if not add it
+          if grep -q "update_hash" updates.json; then
+            perl -pi -e "s/\"update_hash\": \"[^\"]*\"/\"update_hash\": \"sha256:${HASH}\"/" updates.json
+          fi
+          
+      - name: Commit updates.json changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add updates.json
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update updates.json for release v${{ steps.get_version.outputs.version }}"
+            git push origin HEAD:main || git push origin HEAD:master || echo "Could not push to default branch"
+          fi
