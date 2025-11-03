@@ -1,5 +1,5 @@
-// don't set ocrPath by default
-pref("extensions.zotero.zoteroocr.language", "eng")
+// don't set pythonPath by default
+pref("extensions.zotero.zoteroocr.language", "ch")
 pref("extensions.zotero.zoteroocr.outputNote", true);
 pref("extensions.zotero.zoteroocr.outputPDF", true);
 pref("extensions.zotero.zoteroocr.overwritePDF", false);

@@ -1,12 +1,14 @@
    <vbox>
         <groupbox>
             <caption label="OCR parameters"/>
-            <label value="Full location of the tesseract executable (when empty, some standard locations are searched for it):"/>
-            <html:input type="text" id="pref-zoteroocr-ocrPath-value" flex="1" preference="extensions.zotero.zoteroocr.ocrPath"/>
+            <label value="Full location of the Python executable (when empty, some standard locations are searched for it):"/>
+            <html:input type="text" id="pref-zoteroocr-pythonPath-value" flex="1" preference="extensions.zotero.zoteroocr.pythonPath"/>
+            <label value="Full location of the PaddleOCR wrapper script (paddleocr_wrapper.py):"/>
+            <html:input type="text" id="pref-zoteroocr-ocrWrapperPath-value" flex="1" preference="extensions.zotero.zoteroocr.ocrWrapperPath"/>
             <label value="Full location of the pdftoppm executable:"/>
             <html:input type="text" id="pref-zoteroocr-pdftoppmPath-value" flex="1" preference="extensions.zotero.zoteroocr.pdftoppmPath"/>
             <hbox>
-                <label value="Choose a language/script you want to use for recognition (default is eng):"/>
+                <label value="Choose a language/script for PaddleOCR (default is ch for Chinese/English):"/>
                 <html:input type="text" id="pref-zoteroocr-language-value" preference="extensions.zotero.zoteroocr.language" width="100"/>
             </hbox>
             <hbox>
@@ -14,7 +16,7 @@
                 <html:input type="text" id="pref-zoteroocr-outputdpi-value" preference="extensions.zotero.zoteroocr.outputDPI" width="60"/>
             </hbox>
             <hbox>
-                <label value="Tesseract Page Segmentation Mode - integer from 0 to 13 (inclusive)"/>
+                <label value="Page Segmentation Mode (kept for compatibility, not used by PaddleOCR)"/>
                 <html:input type="text" id="pref-zoteroocr-psmmode-value" preference="extensions.zotero.zoteroocr.psmmode" width="30"/>
             </hbox>
         </groupbox>
