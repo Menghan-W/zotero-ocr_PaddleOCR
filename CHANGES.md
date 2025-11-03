@@ -1,5 +1,27 @@
 # Changes from Original Zotero OCR Plugin
 
+## Version 1.0.1 - Pixi Package Management Support
+
+Added support for Pixi package manager to simplify dependency installation.
+
+### New Features
+
+#### Pixi Support
+- **Added**: `pixi.toml` configuration file for automated dependency management
+- **Impact**: Users can now run `pixi install` to set up all Python dependencies automatically
+- **Benefits**: 
+  - Isolated project environment (no global Python package conflicts)
+  - Automatic Python version management
+  - One-command setup for all dependencies
+  - Cross-platform support (Linux, macOS, Windows)
+
+#### Documentation Updates
+- **Updated**: README.md with Pixi installation instructions as recommended method
+- **Updated**: INSTALL.md with detailed Pixi setup guide
+- **Updated**: .gitignore to exclude Pixi environment files
+
+---
+
 ## Version 1.0.0 - PaddleOCR Adaptation
 
 This document summarizes the changes made to adapt the Zotero OCR plugin to use PaddleOCR instead of Tesseract.

@@ -26,6 +26,33 @@ It can add a new PDF including the recognized text, a note with the recognized t
 
 ## Prerequisites
 
+### Option 1: Using Pixi (Recommended)
+
+[Pixi](https://pixi.sh/) is a modern package manager that handles all Python dependencies automatically in an isolated project environment.
+
+1. **Install Pixi** (one-time setup):
+   ```bash
+   # Linux/macOS
+   curl -fsSL https://pixi.sh/install.sh | bash
+   
+   # Windows (PowerShell)
+   iwr -useb https://pixi.sh/install.ps1 | iex
+   ```
+
+2. **Install dependencies** (in the project directory):
+   ```bash
+   pixi install
+   ```
+
+   This automatically installs Python, PaddleOCR, img2pdf, and all required dependencies in an isolated environment.
+
+3. **Install pdftoppm**:
+   - For Windows: Download from http://blog.alivate.com.au/poppler-windows/
+   - For Linux: `sudo apt-get install poppler-utils` (Debian/Ubuntu) or `sudo yum install poppler-utils` (CentOS/Fedora)
+   - For Mac: `brew install poppler`
+
+### Option 2: Manual Installation
+
 - **Python 3.7+** is installed
 - **PaddleOCR** is installed via pip:
   ```bash
@@ -41,12 +68,50 @@ It can add a new PDF including the recognized text, a note with the recognized t
   - For Linux: `sudo apt-get install poppler-utils` (Debian/Ubuntu) or `sudo yum install poppler-utils` (CentOS/Fedora)
   - For Mac: `brew install poppler`
 
+---
+
 Zotero must be installed using one of the officially supported methods https://www.zotero.org/support/installation#how_do_i_install_zotero. Flatpak/Snap/Appimage and similar set-ups are not supported: Zotero-OCR will not work with them in general, as such architectures prevent it from accessing the Python, PaddleOCR, and pdftoppm tools. Skilled users might get them to work on their own machines but we cannot help with that.
 
 
 ## Installation
 
 To install the extension:
+
+### Option 1: Using Pixi (Recommended)
+
+1. **Install Pixi** (if not already installed):
+   ```bash
+   # Linux/macOS
+   curl -fsSL https://pixi.sh/install.sh | bash
+   
+   # Windows (PowerShell)
+   iwr -useb https://pixi.sh/install.ps1 | iex
+   ```
+
+2. **Clone or download this repository**:
+   ```bash
+   git clone https://github.com/Menghan-W/zotero-ocr_PaddleOCR.git
+   cd zotero-ocr_PaddleOCR
+   ```
+
+3. **Install all dependencies**:
+   ```bash
+   pixi install
+   ```
+
+4. **Install pdftoppm** (see Prerequisites section above)
+
+5. **Configure Zotero plugin**:
+   - Download the XPI file of the [latest release](https://github.com/Menghan-W/zotero-ocr_PaddleOCR/releases).
+   - In Zotero:
+     - **Zotero 7**: Tools → Plugins → Drag the .xpi onto the Plugins Manager window
+     - **Zotero 6**: Tools → Add-ons → Drag the .xpi onto the Add-ons window → Restart Zotero
+   - In plugin settings:
+     - **Python Path**: Set to `<project-dir>/.pixi/envs/default/bin/python` (Linux/Mac) or `<project-dir>\.pixi\envs\default\python.exe` (Windows)
+     - **PaddleOCR Wrapper Path**: Set to `<project-dir>/src/paddleocr_wrapper.py`
+     - **pdftoppm Path**: Usually auto-detected
+
+### Option 2: Manual Installation
 
 1. **Install prerequisites:**
    - Install Python 3.7+ from https://www.python.org/downloads/

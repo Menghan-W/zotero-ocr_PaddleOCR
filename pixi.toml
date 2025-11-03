@@ -1,0 +1,29 @@
+[project]
+name = "zotero-ocr-paddleocr"
+version = "1.0.0"
+description = "Zotero OCR plugin using PaddleOCR"
+authors = ["Menghan-W <based on original by Philipp Zumstein>"]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+
+[tasks]
+# Install and run OCR wrapper script
+ocr = "python src/paddleocr_wrapper.py"
+
+[dependencies]
+python = ">=3.7,<3.13"
+paddleocr = "*"
+img2pdf = "*"
+# PaddleOCR dependencies
+paddlepaddle = "*"
+shapely = "*"
+opencv = "*"
+pyclipper = "*"
+lmdb = "*"
+tqdm = "*"
+numpy = "*"
+visualdl = "*"
+rapidfuzz = "*"
+pillow = "*"
+scikit-image = "*"
+pyyaml = "*"

@@ -2,3 +2,7 @@
 *.xpi
 __pycache__/
 *.pyc
+
+# Pixi
+.pixi/
+pixi.lock
