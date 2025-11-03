@@ -7,7 +7,6 @@ Usage: python paddleocr_wrapper.py <image_list_file> <output_base> --psm <mode> 
 
 import sys
 import os
-from pathlib import Path
 
 def main():
     if len(sys.argv) < 3:
@@ -123,20 +122,20 @@ def main():
     if 'pdf' in output_types:
         try:
             import img2pdf
-            from PIL import Image
             
             pdf_file = output_base + '.pdf'
             
-            # Convert images to PDF with text layer
-            # Since PaddleOCR doesn't directly generate PDF, we create a simple image PDF
-            # For a proper searchable PDF, we'd need to use a PDF library to add text layer
-            
-            # For now, create a simple image-based PDF
-            with open(pdf_file, 'wb') as f:
-                # Filter valid image paths
-                valid_images = [img for img in image_files if os.path.exists(img)]
-                if valid_images:
-                    f.write(img2pdf.convert(valid_images))
+            # Filter valid image paths
+            valid_images = [img for img in image_files if os.path.exists(img)]
+            if valid_images:
+                try:
+                    with open(pdf_file, 'wb') as f:
+                        f.write(img2pdf.convert(valid_images))
+                except Exception as conv_error:
+                    print(f"Error converting images to PDF: {str(conv_error)}", file=sys.stderr)
+                    print("This may be due to unsupported image formats or corrupted files.", file=sys.stderr)
+            else:
+                print("Warning: No valid images found for PDF conversion", file=sys.stderr)
         except ImportError:
             print("Warning: img2pdf not installed. PDF output skipped. Install with: pip install img2pdf", file=sys.stderr)
         except Exception as e:

@@ -239,7 +239,11 @@ ZoteroOCR = {
             }
             
             if (!pythonFound) {
-                window.alert("No Python executable found. Please install Python 3 and PaddleOCR:\npip install paddleocr");
+                window.alert("No Python executable found. Please install Python 3.7+ and PaddleOCR.\n\n" +
+                           "Installation instructions:\n" +
+                           "1. Install Python from python.org\n" +
+                           "2. Install PaddleOCR: pip install paddleocr (or pip3 install paddleocr)\n\n" +
+                           "Then restart Zotero.");
                 return;
             }
             
