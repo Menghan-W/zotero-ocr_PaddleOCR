@@ -209,10 +209,75 @@ ZoteroOCR = {
                 return;
             }
 
-            let ocrEnginePaths = ["", "/usr/local/bin/", "/usr/bin/", "C:\\Program Files\\Tesseract-OCR\\", "/opt/homebrew/bin/", "/usr/local/homebrew/bin/", "/run/current-system/sw/bin/"];
-            let ocrEngine = await checkExternalCmd("tesseract", "zoteroocr.ocrPath", ocrEnginePaths);
+            // Check for Python (required for PaddleOCR wrapper)
+            let pythonPaths = ["python3", "python", "/usr/bin/python3", "/usr/bin/python", "/usr/local/bin/python3", "C:\\Python3\\python.exe", "C:\\Python\\python.exe"];
+            let pythonCmd = Zotero.Prefs.get("zoteroocr.pythonPath");
+            let pythonFound = false;
+            
+            if (!pythonCmd) {
+                for (pythonCmd of pythonPaths) {
+                    try {
+                        // Check if python is available
+                        let proc = await Subprocess.call({
+                            command: pythonCmd,
+                            arguments: ["--version"],
+                            stderr: "stdout"
+                        });
+                        let output = await proc.stdout.readString();
+                        if (output && output.toLowerCase().includes("python")) {
+                            pythonFound = true;
+                            Zotero.Prefs.set("zoteroocr.pythonPath", pythonCmd);
+                            logString = log("Found Python: " + pythonCmd);
+                            break;
+                        }
+                    } catch (e) {
+                        continue;
+                    }
+                }
+            } else {
+                pythonFound = true;
+            }
+            
+            if (!pythonFound) {
+                window.alert("No Python executable found. Please install Python 3 and PaddleOCR:\npip install paddleocr");
+                return;
+            }
+            
+            // Set path to PaddleOCR wrapper script
+            let ocrEngine = Zotero.Prefs.get("zoteroocr.ocrWrapperPath");
+            
+            if (!ocrEngine) {
+                // Default locations to check
+                let wrapperPaths = [
+                    PathUtils.join(Zotero.DataDirectory.dir, "paddleocr_wrapper.py"),
+                    "/usr/local/bin/paddleocr_wrapper.py",
+                    "/usr/bin/paddleocr_wrapper.py",
+                    "C:\\Program Files\\Zotero\\paddleocr_wrapper.py"
+                ];
+                
+                let found = false;
+                for (let path of wrapperPaths) {
+                    if (await IOUtils.exists(path)) {
+                        ocrEngine = path;
+                        Zotero.Prefs.set("zoteroocr.ocrWrapperPath", ocrEngine);
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    window.alert("PaddleOCR wrapper script not found.\n\n" +
+                               "Please download paddleocr_wrapper.py from the plugin repository and place it in one of these locations:\n" +
+                               "- " + Zotero.DataDirectory.dir + "\n" +
+                               "- /usr/local/bin/ (Linux/Mac)\n" +
+                               "- C:\\Program Files\\Zotero\\ (Windows)\n\n" +
+                               "Or set the path manually in Zotero OCR preferences.");
+                    return;
+                }
+            }
+            
             if (!(await IOUtils.exists(ocrEngine))) {
-                window.alert("No tesseract executable found, last check: " + ocrEngine);
+                window.alert("PaddleOCR wrapper script not found at: " + ocrEngine + "\n\nPlease check the path in Zotero OCR preferences.");
                 return;
             }
 
@@ -360,9 +425,9 @@ ZoteroOCR = {
                 parameters.push(PSMMode);
 
                 let ocrLanguage = Zotero.Prefs.get("zoteroocr.language");
-                // Convert existing instances with older or buggy defaults to English OCR
+                // Convert existing instances with older or buggy defaults to Chinese/English OCR
                 if (!ocrLanguage || ocrLanguage === 'undefined') {
-                    ocrLanguage = 'eng';
+                    ocrLanguage = 'ch';
                     Zotero.Prefs.set("zoteroocr.language", ocrLanguage);
                 }
                 parameters.push('-l');
@@ -377,12 +442,11 @@ ZoteroOCR = {
                 }
                 
                 progress.updateMessage("Processing... please be patient");
-                logString = log("Running " + ocrEngine + ' ' + parameters.join(' '));
-
+                logString = log("Running Python " + ocrEngine + ' ' + parameters.join(' '));
 
                 let proc = await Subprocess.call({
-                    command: ocrEngine,
-                    arguments: parameters,
+                    command: pythonCmd,
+                    arguments: [ocrEngine, ...parameters],
                     stderr: "stdout"
                 })
                 const pageRegex = /Page (\d+) :/
