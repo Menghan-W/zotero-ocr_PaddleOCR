@@ -1,5 +1,24 @@
 # Zotero OCR (PaddleOCR Edition)
 
+This is a fork of [Zotero OCR](https://github.com/UB-Mannheim/zotero-ocr) adapted to use [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) instead of Tesseract OCR.
+
+## Why PaddleOCR?
+
+PaddleOCR is a practical ultra-lightweight OCR system developed by Baidu, offering:
+- **Better multilingual support**, especially for Chinese, Japanese, and Korean
+- **State-of-the-art accuracy** with PP-OCRv3/v4 models
+- **Flexible deployment** options (CPU/GPU)
+- **Easy installation** via pip
+
+## Key Differences from Original Plugin
+
+- **OCR Engine**: Uses PaddleOCR instead of Tesseract
+- **Installation**: Requires Python and PaddleOCR installation
+- **Default Language**: Changed to "ch" (Chinese/English) instead of "eng"
+- **Wrapper Script**: Includes a Python wrapper script to bridge PaddleOCR with Zotero
+
+---
+
 This Zotero plugin adds the functionality to perform an OCR for the PDFs selected in Zotero.
 It can add a new PDF including the recognized text, a note with the recognized text only, and HTML (hOCR) file(s).
 **PaddleOCR** is used for the text recognition itself.
